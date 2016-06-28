@@ -65,6 +65,8 @@
 @interface TabView : UIView
 @property (nonatomic, getter = isSelected) BOOL selected;
 @property (nonatomic) UIColor *indicatorColor;
+@property (nonatomic) UIColor *tabLabelActiveColor;
+@property (nonatomic) UIColor *tabLabelInactiveColor;
 @property (nonatomic, strong) UILabel *contentLabel;
 @property (nonatomic) BOOL fitsIndicatorWidthToTitleLabel;
 @end
@@ -82,9 +84,9 @@
     // Update view as state changed
 
     if (selected) {
-        self.contentLabel.textColor= self.indicatorColor;
+        self.contentLabel.textColor= _tabLabelActiveColor;
     } else {
-        self.contentLabel.textColor= [UIColor colorWithRed:137./255 green:137./255 blue:137./255 alpha:1.0];
+        self.contentLabel.textColor= _tabLabelInactiveColor;
     }
 
     [self setNeedsDisplay];
@@ -153,6 +155,8 @@
 
 // Colors
 @property (nonatomic) UIColor *indicatorColor;
+@property (nonatomic) UIColor *tabLabelActiveColor;
+@property (nonatomic) UIColor *tabLabelInactiveColor;
 @property (nonatomic) UIColor *tabsViewBackgroundColor;
 @property (nonatomic) UIColor *contentViewBackgroundColor;
 
@@ -575,6 +579,28 @@
     }
     return _indicatorColor;
 }
+- (UIColor *)tabLabelActiveColor {
+
+    if (!_tabLabelActiveColor) {
+        UIColor *color = kIndicatorColor;
+        if ([self.delegate respondsToSelector:@selector(viewPager:colorForComponent:withDefault:)]) {
+            color = [self.delegate viewPager:self colorForComponent:ViewPagerTabLabelActive withDefault:color];
+        }
+        self.tabLabelActiveColor = color;
+    }
+    return _tabLabelActiveColor;
+}
+- (UIColor *)tabLabelInactiveColor {
+
+    if (!_tabLabelInactiveColor) {
+        UIColor *color = kIndicatorColor;
+        if ([self.delegate respondsToSelector:@selector(viewPager:colorForComponent:withDefault:)]) {
+            color = [self.delegate viewPager:self colorForComponent:ViewPagerTabLabelInactive withDefault:color];
+        }
+        self.tabLabelInactiveColor = color;
+    }
+    return _tabLabelInactiveColor;
+}
 - (UIColor *)tabsViewBackgroundColor {
 
     if (!_tabsViewBackgroundColor) {
@@ -626,6 +652,8 @@
 
     // Empty all colors
     _indicatorColor = nil;
+    _tabLabelActiveColor = nil;
+    _tabLabelInactiveColor = nil;
     _tabsViewBackgroundColor = nil;
     _contentViewBackgroundColor = nil;
 
@@ -739,22 +767,36 @@
 
     // These colors will be updated
     UIColor *indicatorColor;
+    UIColor *tabLabelInactiveColor;
+    UIColor *tabLabelActiveColor;
     UIColor *tabsViewBackgroundColor;
     UIColor *contentViewBackgroundColor;
 
-    // Get indicatorColor and check if it is different from the current one
+    // Get tabLabelInactiveColor and check if it is different from the current one
     // If it is, update it
     indicatorColor = [self.delegate viewPager:self colorForComponent:ViewPagerIndicator withDefault:kIndicatorColor];
+    tabLabelInactiveColor = [self.delegate viewPager:self colorForComponent:ViewPagerTabLabelInactive withDefault:kIndicatorColor];
+    tabLabelActiveColor = [self.delegate viewPager:self colorForComponent:ViewPagerTabLabelActive withDefault:kIndicatorColor];
 
-    if (![self.indicatorColor isEqualToColor:indicatorColor]) {
+    if (![self.tabLabelInactiveColor isEqualToColor:tabLabelInactiveColor]) {
 
-        // We will iterate through all of the tabs to update its indicatorColor
+        // We will iterate through all of the tabs to update its tabLabelInactiveColor
         [self.tabs enumerateObjectsUsingBlock:^(TabView *tabView, NSUInteger index, BOOL *stop) {
-            tabView.indicatorColor = indicatorColor;
+            tabView.tabLabelInactiveColor = tabLabelInactiveColor;
         }];
 
-        // Update indicatorColor to check again later
-        self.indicatorColor = indicatorColor;
+        // Update tabLabelInactiveColor to check again later
+        self.tabLabelInactiveColor = tabLabelInactiveColor;
+    }
+	if (![self.tabLabelActiveColor isEqualToColor:tabLabelActiveColor]) {
+
+        // We will iterate through all of the tabs to update its tabLabelInactiveColor
+        [self.tabs enumerateObjectsUsingBlock:^(TabView *tabView, NSUInteger index, BOOL *stop) {
+            tabView.tabLabelActiveColor = tabLabelActiveColor;
+        }];
+
+        // Update tabLabelInactiveColor to check again later
+        self.tabLabelActiveColor = tabLabelActiveColor;
     }
 
     // Get tabsViewBackgroundColor and check if it is different from the current one
@@ -813,6 +855,10 @@
     switch (component) {
         case ViewPagerIndicator:
             return [self indicatorColor];
+		case ViewPagerTabLabelActive:
+	        return [self tabLabelActiveColor];
+		case ViewPagerTabLabelInactive:
+		    return [self tabLabelInactiveColor];
         case ViewPagerTabsView:
             return [self tabsViewBackgroundColor];
         case ViewPagerContent:
@@ -968,6 +1014,7 @@
 
         // Get view from dataSource
         UILabel *tabViewContent = (UILabel *)[self.dataSource viewPager:self viewForTabAtIndex:index];
+		tabViewContent.textColor = _tabLabelInactiveColor;
         //        tabViewContent.autoresizingMask = UIViewAutoresizingFlexibleHeight;
 
         // Create TabView and subview the content
@@ -991,6 +1038,8 @@
         [tabView addSubview:tabViewContent];
         [tabView setClipsToBounds:YES];
         [tabView setIndicatorColor:self.indicatorColor];
+        [tabView setTabLabelActiveColor:self.tabLabelActiveColor];
+        [tabView setTabLabelInactiveColor:self.tabLabelInactiveColor];
 
         // Replace the null object with tabView
         [self.tabs replaceObjectAtIndex:index withObject:tabView];
