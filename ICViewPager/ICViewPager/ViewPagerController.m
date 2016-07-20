@@ -256,13 +256,20 @@
 }
 
 #pragma mark - Interface rotation
-- (void)didRotateFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation {
+- (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id <UIViewControllerTransitionCoordinator>)coordinator
+{
+    [super viewWillTransitionToSize:size withTransitionCoordinator:coordinator];
 
-    // Re-layout sub views
-    [self layoutSubviews];
+    [coordinator animateAlongsideTransition:nil
+		completion:^(id<UIViewControllerTransitionCoordinatorContext> context) {
 
-    // Re-align tabs if needed
-    self.activeTabIndex = self.activeTabIndex;
+	    // Re-layout sub views
+	    [self layoutSubviews];
+
+	    // Re-align tabs if needed
+	    self.activeTabIndex = self.activeTabIndex;
+
+    }];
 }
 
 #pragma mark - Setters
