@@ -1151,7 +1151,8 @@
         CGFloat minXDistance = CGFLOAT_MAX;
         for (UIView *subview in self.tabsView.subviews) {
             CGFloat startX = CGRectGetMinX(subview.frame);
-            CGFloat currentDistance = ABS(startX - targetContentOffset->x);
+            CGFloat currentDistance = fabs(startX - targetContentOffset->x);
+
             if (minXDistance > currentDistance) {
                 minXDistance = currentDistance;
                 targetView = subview;
