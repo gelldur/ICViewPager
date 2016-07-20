@@ -118,9 +118,10 @@
 
 
         // Draw the indicator
-        [bezierPath moveToPoint:CGPointMake(startXPoint, CGRectGetMaxY(self.contentLabel.frame) + 2.0)];
-        [bezierPath addLineToPoint:CGPointMake(endXPoint, CGRectGetMaxY(self.contentLabel.frame) + 2.0)];
-        [bezierPath setLineWidth:1.0];
+        CGFloat y = CGRectGetMaxY(self.contentLabel.frame) + 6.0;
+        [bezierPath moveToPoint:CGPointMake(startXPoint, y)];
+        [bezierPath addLineToPoint:CGPointMake(endXPoint, y)];
+        [bezierPath setLineWidth:3.0];
         [self.indicatorColor setStroke];
         [bezierPath stroke];
     }
