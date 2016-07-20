@@ -37,18 +37,26 @@
 @implementation UIColor (Equality)
 // This method checks if two UIColors are the same
 // Thanks to @samvermette for this method: http://stackoverflow.com/a/8899384/1931781
-- (BOOL)isEqualToColor:(UIColor *)otherColor {
+- (BOOL) isEqualToColor:(UIColor *)otherColor
+{
+    if (self == otherColor)
+        return YES;
 
     CGColorSpaceRef colorSpaceRGB = CGColorSpaceCreateDeviceRGB();
 
-    UIColor *(^convertColorToRGBSpace)(UIColor *) = ^(UIColor *color) {
-        if (CGColorSpaceGetModel(CGColorGetColorSpace(color.CGColor)) == kCGColorSpaceModelMonochrome) {
+    UIColor *(^convertColorToRGBSpace)(UIColor*) = ^(UIColor *color)
+    {
+        if (CGColorSpaceGetModel(CGColorGetColorSpace(color.CGColor)) == kCGColorSpaceModelMonochrome)
+        {
             const CGFloat *oldComponents = CGColorGetComponents(color.CGColor);
             CGFloat components[4] = {oldComponents[0], oldComponents[0], oldComponents[0], oldComponents[1]};
-            return [UIColor colorWithCGColor:CGColorCreate(colorSpaceRGB, components)];
-        } else {
+            CGColorRef colorRef = CGColorCreate(colorSpaceRGB, components);
+            UIColor *color = [UIColor colorWithCGColor:colorRef];
+            CGColorRelease(colorRef);
             return color;
         }
+        else
+            return color;
     };
 
     UIColor *selfColor = convertColorToRGBSpace(self);
