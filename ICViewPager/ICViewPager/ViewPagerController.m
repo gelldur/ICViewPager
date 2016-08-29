@@ -118,7 +118,7 @@
 
 
         // Draw the indicator
-        CGFloat y = CGRectGetMaxY(self.contentLabel.frame) + 6.0;
+        CGFloat y = CGRectGetMaxY(self.contentLabel.frame) + 11.0;
         [bezierPath moveToPoint:CGPointMake(startXPoint, y)];
         [bezierPath addLineToPoint:CGPointMake(endXPoint, y)];
         [bezierPath setLineWidth:3.0];
